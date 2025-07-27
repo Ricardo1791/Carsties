@@ -2,7 +2,7 @@ import React from 'react'
 
 import CountdownTimer from './CountdownTimer'
 import CarImage from './CarImage'
-import { Auction } from '@/public/types'
+import { Auction } from '@/types'
 
 type Props = {
     auction: Auction
