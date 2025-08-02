@@ -1,35 +1,28 @@
-﻿using AuctionService.Data;
+﻿using System;
+using AuctionService.Data;
+using AuctionService.Entities;
 using Contracts;
 using MassTransit;
 
-namespace AuctionService.Consumers
+namespace AuctionService.Consumers;
+
+public class AuctionFinishedConsumer(AuctionDbContext dbContext) : IConsumer<AuctionFinished>
 {
-    public class AuctionFinishedConsumer : IConsumer<AuctionFinished>
+    public async Task Consume(ConsumeContext<AuctionFinished> context)
     {
-        private readonly AuctionDbContext _dbContext;
+        var auction = await dbContext.Auctions.FindAsync(Guid.Parse(context.Message.AuctionId))
+            ?? throw new InvalidOperationException($"Auction with ID {context.Message.AuctionId} not found.");
 
-        public AuctionFinishedConsumer(AuctionDbContext dbContext)
+        if (context.Message.ItemSold)
         {
-            this._dbContext = dbContext;
+            auction.Winner = context.Message.Winner;
+            auction.SoldAmount = context.Message.Amount;
         }
 
-        public async Task Consume(ConsumeContext<AuctionFinished> context)
-        {
-            Console.WriteLine("---> Consuming Finished auction");
+        auction.Status = auction.SoldAmount > auction.ReservePrice
+            ? Status.Finished
+            : Status.ReserveNotMet;
 
-            var auction = await _dbContext.Auctions.FindAsync(context.Message.AuctionId);
-
-            if (context.Message.ItemSold)
-            {
-                auction.Winner = context.Message.Winner;
-                auction.SoldAmount = context.Message.Amount;
-            }
-
-            auction.Status = auction.SoldAmount > auction.ReservePrice ?
-                    Entities.Status.Finished : Entities.Status.ReserveNotMet;
-
-            await _dbContext.SaveChangesAsync();
-
-        }
+        await dbContext.SaveChangesAsync();
     }
 }
