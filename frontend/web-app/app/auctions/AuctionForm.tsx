@@ -16,6 +16,7 @@ type Props = {
 export default function AuctionForm({ auction }: Props) {
     const router = useRouter();
     const pathname = usePathname();
+    console.log(pathname);
     const { control, handleSubmit, setFocus, reset, formState: { isSubmitting, isValid, isDirty } } = useForm({
         mode: 'onTouched'
     });
@@ -59,7 +60,7 @@ export default function AuctionForm({ auction }: Props) {
                 <Input name='year' label='Year' type='number' control={control} rules={{ required: 'Year is required' }} />
                 <Input name='mileage' label='mileage' control={control} rules={{ required: 'Mileage is required' }} />
             </div>
-            {pathname === 'auctions/create' && 
+            {pathname === '/auctions/create' && 
             <>
                 <Input name='imageUrl' label='Image URL' control={control} rules={{ required: 'Image URL is required' }} />
                 <div className='grid grid-cols-2 gap-3'>

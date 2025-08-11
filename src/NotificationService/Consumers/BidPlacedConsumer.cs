@@ -18,7 +18,7 @@ namespace NotificationService.Consumers
         {
             Console.WriteLine("----> Bid placed message received");
 
-            await hubContext.Clients.All.SendAsync("AuctionFinished", context.Message);
+            await hubContext.Clients.All.SendAsync("BidPlaced", context.Message);
         }
     }
 }
